@@ -1,0 +1,35 @@
+volumes:
+  database:
+  mongodb_data:
+
+services:
+  # mongodb:
+  #   image: mongo:8.0.1
+  #   container_name: turborepo_mongodb
+  #   restart: always
+  #   ports:
+  #     - 27017:27017
+  #   environment:
+  #     MONGO_INITDB_DATABASE: turborepo
+  #   volumes:
+  #     - mongo_data:/var/lib/mongodb
+
+  mongodb:
+    image: mongo:8.0.1
+    container_name: turborepo_mongodb
+    hostname: mongodb
+    restart: always
+    command: mongod --replSet rs0 --bind_ip_all
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_DATABASE: turborepo
+    healthcheck:
+      test: mongosh --eval 'try { rs.status() } catch(err) { exit(1) }'
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh
