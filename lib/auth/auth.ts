@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import { client } from "./db";
+import { client } from "../db";
 import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
@@ -11,6 +11,11 @@ export const auth = betterAuth({
   },
   account: {
     accountLinking: {
+      enabled: true,
+    },
+  },
+  user: {
+    deleteUser: {
       enabled: true,
     },
   },
