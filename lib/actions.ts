@@ -1,6 +1,5 @@
 "use server";
 
-import { APIError } from "better-auth";
 import { auth } from "./auth/auth";
 import { redirect } from "next/navigation";
 import { MongoClient } from "mongodb";
@@ -33,22 +32,24 @@ export async function signUp(formData: FormData) {
       },
     });
   } catch (error) {
-    // if (error instanceof APIError) {
-    //   switch (error.status) {
-    //     case "UNPROCESSABLE_ENTITY":
-    //       return { errorMessage: "User Already exists" };
-    //       break;
+    if (error) {
+      //@ts-ignore
+      switch (error.status) {
+        case "UNPROCESSABLE_ENTITY":
+          return { errorMessage: "User Already exists" };
+          break;
 
-    //     case "BAD_REQUEST":
-    //       return { errorMessage: "Invalid email. Please check your input." };
-    //       break;
+        case "BAD_REQUEST":
+          return { errorMessage: "Invalid email. Please check your input." };
+          break;
 
-    //     default:
-    //       return {
-    //         errorMessage: "An unexpected error occurred. Please try again.",
-    //       };
-    //   }
-    // }
+        default:
+          console.error("Unexpected error during sign up:", error);
+          return {
+            errorMessage: "An unexpected error occurred. Please try again.",
+          };
+      }
+    }
     console.error("Error during sign up:", error);
     throw new Error("Sign up failed. Please try again.");
   }
