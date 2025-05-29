@@ -4,14 +4,14 @@ import { auth } from "./auth/auth";
 import { redirect } from "next/navigation";
 import { MongoClient } from "mongodb";
 import { connectToDatabase } from "./db";
+import { dbConnect } from "./mongoDb";
 
 export async function signUp(formData: FormData) {
   if (!process.env.MONGODB_URI) {
     throw new Error("MONGODB_URI is not defined in environment variables.");
   }
 
-  const client = await MongoClient.connect(process.env.MONGODB_URI);
-  const db = client.db();
+  const db = await dbConnect();
   console.log("Sign Up Action Triggered", formData);
 
   const rawFormdata = {
@@ -58,7 +58,7 @@ export async function signUp(formData: FormData) {
 }
 
 export async function signIn(formData: FormData) {
-  await connectToDatabase();
+  const db = await dbConnect();
   console.log("Sign In Action Triggered", formData);
 
   const rawFormdata = {
