@@ -12,12 +12,13 @@ export function writeTodosToFile(todos: Todo) {
   FileHelper.writeToFile(JSON.stringify({ todos: todos }));
 }
 
-export function CreateTodoObject(text: string) {
+export function CreateTodoObject(text: string, userId: string) {
   const randomId = Math.floor(Math.random() * SEED_NUMBER);
   const newTodoItem: Todo = {
     id: randomId,
     text: text,
     completed: false,
+    userId: userId,
   };
   return newTodoItem;
 }

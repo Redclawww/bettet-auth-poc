@@ -50,7 +50,7 @@ export default async function LoginPage() {
                 <span>Google</span>
               </Button>
             </SignInSocial>
-            <SignInSocial provider="facebook">
+            <SignInSocial provider="linkedin">
               <Button type="button" variant="outline" className="!w-full">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

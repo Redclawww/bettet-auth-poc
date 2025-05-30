@@ -2,9 +2,20 @@ import React, { Suspense } from "react";
 import { addTodo, deleteTodo, getTodos, MarkTodoComplete } from "../actions";
 import { CheckIcon } from "@/components/CheckIcon";
 import { Todo } from "../ctypes";
+import { auth } from "@/lib/auth/auth";
+import { headers } from "next/headers";
 
-export default async function Page() {
-  const data = await getTodos();
+export default async function Todos() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return <div>Not authenticated</div>;
+  }
+
+  const data = await getTodos(session.user.id);
+
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md text-gray-700">
       <h1 className="text-2xl font-bold mb-4 text-center">Todo List</h1>
@@ -26,42 +37,43 @@ export default async function Page() {
       </form>
       <Suspense fallback={<p>Loading Todos</p>}>
         <ul>
-          {data.map((todo: Todo) => (
-            <li
-              key={todo.id}
-              className="flex items-center justify-between p-2 border-b border-gray-200 last:border-b-0"
-            >
-              <div className="flex items-center">
-                {todo.completed && <CheckIcon />}
-                <span
-                  className={`${
-                    todo.completed ? "line-through ml-2 text-gray-500" : ""
-                  }`}
-                >
-                  {todo.text}
-                </span>
-              </div>
-              <div className="flex gap-2 text-white">
-                <form action={deleteTodo}>
-                  <input type="hidden" name="id" value={todo.id} />
-                  <button
-                    className="bg-red-500 bg:text-red-700  px-3 py-2 rounded-lg"
-                    type="submit"
+          {data &&
+            data.map((todo: Todo) => (
+              <li
+                key={todo.id}
+                className="flex items-center justify-between p-2 border-b border-gray-200 last:border-b-0"
+              >
+                <div className="flex items-center">
+                  {todo.completed && <CheckIcon />}
+                  <span
+                    className={`${
+                      todo.completed ? "line-through ml-2 text-gray-500" : ""
+                    }`}
                   >
-                    Delete
-                  </button>
-                </form>
-                {!todo.completed && (
-                  <form action={MarkTodoComplete}>
+                    {todo.text}
+                  </span>
+                </div>
+                <div className="flex gap-2 text-white">
+                  <form action={deleteTodo}>
                     <input type="hidden" name="id" value={todo.id} />
-                    <button className="bg-green-500 hover:bg-green-700 0 px-3 py-2 rounded-lg">
-                      <CheckIcon />
+                    <button
+                      className="bg-red-500 bg:text-red-700  px-3 py-2 rounded-lg"
+                      type="submit"
+                    >
+                      Delete
                     </button>
                   </form>
-                )}
-              </div>
-            </li>
-          ))}
+                  {!todo.completed && (
+                    <form action={MarkTodoComplete}>
+                      <input type="hidden" name="id" value={todo.id} />
+                      <button className="bg-green-500 hover:bg-green-700 0 px-3 py-2 rounded-lg">
+                        <CheckIcon />
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </li>
+            ))}
         </ul>
       </Suspense>
 

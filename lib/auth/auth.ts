@@ -4,7 +4,7 @@ import { client } from "../db";
 import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
-  database: mongodbAdapter(client.db()),
+  database: mongodbAdapter(client.db("auth-poc")),
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
@@ -27,6 +27,10 @@ export const auth = betterAuth({
     facebook: {
       clientId: process.env.FACEBOOK_CLIENT_ID as string,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
+    },
+    linkedin: {
+      clientId: process.env.LINKEDIN_CLIENT_ID as string,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET as string,
     },
   },
   plugins: [nextCookies()],

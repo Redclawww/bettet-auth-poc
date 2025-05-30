@@ -6,7 +6,7 @@ export default function SignInSocial({
   provider,
   children,
 }: {
-  provider: "google" | "facebook";
+  provider: "google" | "facebook" | "linkedin";
   children: React.ReactNode;
 }) {
   return (
