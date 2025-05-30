@@ -1,13 +1,13 @@
 "use client";
 import { resetPassword } from "@/lib/auth/auth-client";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function page() {
+export default function Page() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const router = useRouter();
@@ -18,20 +18,33 @@ export default function page() {
     }
   }, [token]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!token) return;
-    const { error } = await resetPassword({
-      token,
-      newPassword: password,
-    });
 
-    if (error) {
-      setMessage("Failed to reset password. Please try again.");
+    if (password !== confirmPassword) {
+      setMessage("Passwords do not match.");
       return;
-    } else {
-      setMessage("Password reset successfully. You can now log in.");
-      setTimeout(() => router.push("/login"), 2000);
+    }
+
+    try {
+      setIsLoading(true);
+      const { error } = await resetPassword({
+        token,
+        newPassword: password,
+      });
+
+      if (error) {
+        setMessage("Failed to reset password. Please try again.");
+      } else {
+        setMessage("Password reset successfully. You can now log in.");
+        setTimeout(() => router.push("/login"), 2000);
+      }
+    } catch (err) {
+      console.error("Password reset error:", err);
+      setMessage("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -45,16 +58,36 @@ export default function page() {
         type="password"
         placeholder="Enter new password"
         className="border p-2 rounded mb-4 w-80"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        minLength={8}
       />
       <input
         type="password"
         placeholder="Confirm new password"
         className="border p-2 rounded mb-4 w-80"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+        required
+        minLength={8}
       />
-      <button className="bg-blue-500 text-white p-2 rounded w-80" type="submit">
-        Reset Password
+      <button
+        className="bg-blue-500 text-white p-2 rounded w-80"
+        type="submit"
+        disabled={isLoading}
+      >
+        {isLoading ? "Processing..." : "Reset Password"}
       </button>
-      {message && <p className="text-red-500 mt-4">{message}</p>}
+      {message && (
+        <p
+          className={`mt-4 ${
+            message.includes("successfully") ? "text-green-500" : "text-red-500"
+          }`}
+        >
+          {message}
+        </p>
+      )}
     </form>
   );
 }
